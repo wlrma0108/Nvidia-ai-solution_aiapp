@@ -24,7 +24,7 @@ from config import (
     FONT,
 )
 
-from models import fruit_model, COCO_MODEL
+from models import get_fruit_model, get_coco_model
 from tracking import MultiObjectTracker, iou_box, center_of
 
 tracker = MultiObjectTracker()
@@ -59,7 +59,7 @@ def detect_step(frame_bgr, frame_idx):
     detections = []
 
     # 1) 과일 YOLO 감지
-    fruit_results = fruit_model.predict(
+    fruit_results = get_fruit_model().predict(
         source=frame_bgr,
         conf=CONF_THRES_FRUIT,
         iou=IOU_THRES,
@@ -86,7 +86,7 @@ def detect_step(frame_bgr, frame_idx):
             detections.append((x1,y1,x2,y2, gcls, conf))
 
     # 2) COCO YOLO에서 음료 용기만 감지 → Drink(2)
-    drink_results = COCO_MODEL.predict(
+    drink_results = get_coco_model().predict(
         source=frame_bgr,
         conf=CONF_THRES_DRINK,
         iou=IOU_THRES,
@@ -166,7 +166,7 @@ def detect_step(frame_bgr, frame_idx):
                         px2 = min(W, cx2+REVERIFY_PAD); py2 = min(H, cy2+REVERIFY_PAD)
                         roi = frame_bgr[py1:py2, px1:px2]
                         if roi.size > 0:
-                            rr = fruit_model.predict(
+                            rr = get_fruit_model().predict(
                                 source=roi,
                                 conf=REVERIFY_CONF,
                                 iou=0.30,

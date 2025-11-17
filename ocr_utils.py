@@ -4,7 +4,7 @@ import re
 
 import cv2
 
-from models import ocr
+from models import get_ocr
 
 def _run_paddle_ocr(image_bgr):
     """
@@ -27,14 +27,14 @@ def _run_paddle_ocr(image_bgr):
 
     # 1차 시도: numpy 배열 그대로 predict
     try:
-        result = ocr.predict(image_bgr)
+        result = get_ocr().predict(image_bgr)
     except Exception:
         # 2차 시도: 임시 파일로 저장 후 경로 기반 predict
         fd, tmp_path = tempfile.mkstemp(suffix=".png")
         os.close(fd)
         try:
             cv2.imwrite(tmp_path, image_bgr)
-            result = ocr.predict(tmp_path)
+            result = get_ocr().predict(tmp_path)
         finally:
             try:
                 os.remove(tmp_path)
@@ -63,7 +63,9 @@ def ocr_text_from_crop(frame_bgr, bbox):
     - _run_paddle_ocr()로 OCR 수행
     - 텍스트 라인을 가장 많이 뽑은 버전을 최종 결과로 선택
     """
-    if ocr is None:
+    try:
+        get_ocr()  # Check if OCR can be initialized
+    except Exception:
         return []
 
     H, W = frame_bgr.shape[:2]

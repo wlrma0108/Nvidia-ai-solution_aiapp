@@ -1,10 +1,10 @@
 import os
 import sys
 
-from models import ocr  
+from models import get_ocr
 
-# 환경에 따라 변경 필요
-DEFAULT_IMG_PATH = r"C://Users//성주//OneDrive//바탕 화면//Nvidia ai 솔루션//coffee.jpg"
+# 환경에 따라 변경 필요 (현재 사용자는 직접 경로 지정 필요)
+DEFAULT_IMG_PATH = os.environ.get("DEFAULT_IMG_PATH", "coffee.jpg")
 
 def run_ocr_on_image(img_path: str):
     """주어진 이미지 경로에 대해 PaddleOCR 실행하고 텍스트 + 점수 출력."""
@@ -14,7 +14,7 @@ def run_ocr_on_image(img_path: str):
 
     print(f"[INFO] PaddleOCR 실행: {img_path}")
     try:
-        result = ocr.predict(img_path)  # PaddleOCR 3.x 스타일
+        result = get_ocr().predict(img_path)  # PaddleOCR 3.x 스타일
     except Exception as e:
         print("[ERROR] OCR 실행 중 예외 발생:")
         print(e)
