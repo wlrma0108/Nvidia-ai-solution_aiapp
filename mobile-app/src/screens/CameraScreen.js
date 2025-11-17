@@ -30,9 +30,7 @@ const CameraScreen = ({navigation}) => {
   };
 
   const takePhoto = async () => {
-    if (!camera.current) {
-      return;
-    }
+    if (!camera.current) return;
 
     try {
       setIsAnalyzing(true);
@@ -42,18 +40,11 @@ const CameraScreen = ({navigation}) => {
         qualityPrioritization: 'quality',
       });
 
-      // 이미지 분석
-      const result = await analyzeFoodImage(
-        Platform.OS === 'ios' ? photo.path : `file://${photo.path}`,
-      );
+      const imageUri = Platform.OS === 'ios' ? photo.path : `file://${photo.path}`;
+      const result = await analyzeFoodImage(imageUri);
 
       setIsAnalyzing(false);
-
-      // 결과 화면으로 이동
-      navigation.navigate('Result', {
-        result,
-        imageUri: Platform.OS === 'ios' ? photo.path : `file://${photo.path}`,
-      });
+      navigation.navigate('Result', {result, imageUri});
     } catch (error) {
       setIsAnalyzing(false);
       Alert.alert('오류', error.message || '분석 중 오류가 발생했습니다.');
@@ -95,7 +86,6 @@ const CameraScreen = ({navigation}) => {
         photo={true}
       />
 
-      {/* 가이드 오버레이 */}
       <View style={styles.overlay}>
         <View style={styles.topOverlay}>
           <Text style={styles.guideText}>

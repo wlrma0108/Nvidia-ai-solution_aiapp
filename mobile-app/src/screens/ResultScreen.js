@@ -14,49 +14,29 @@ import {colors, spacing, borderRadius, typography, shadows} from '../styles/them
 const ResultScreen = ({route, navigation}) => {
   const {result, imageUri} = route.params;
 
-  // 위험도에 따른 색상 결정
   const getRiskColor = () => {
     if (!result.detected) return colors.textSecondary;
-
     const foodType = result.food_class;
-    // 0: Banana (위험), 1: Watermelon (위험), 2: Drink (경고)
-    if (foodType === 0 || foodType === 1) {
-      return colors.danger;
-    } else if (foodType === 2) {
-      return colors.warning;
-    }
+    if (foodType === 0 || foodType === 1) return colors.danger;
+    if (foodType === 2) return colors.warning;
     return colors.success;
   };
 
   const getRiskIcon = () => {
     if (!result.detected) return 'help-circle';
-
     const foodType = result.food_class;
-    if (foodType === 0 || foodType === 1) {
-      return 'alert-circle';
-    } else if (foodType === 2) {
-      return 'information';
-    }
+    if (foodType === 0 || foodType === 1) return 'alert-circle';
+    if (foodType === 2) return 'information';
     return 'check-circle';
-  };
-
-  const handleRetake = () => {
-    navigation.goBack();
-  };
-
-  const handleHome = () => {
-    navigation.navigate('Home');
   };
 
   return (
     <ScrollView style={styles.container}>
-      {/* 촬영된 이미지 */}
       <Image source={{uri: imageUri}} style={styles.image} resizeMode="cover" />
 
       <View style={styles.content}>
         {result.detected ? (
           <>
-            {/* 감지된 음식 카드 */}
             <View style={[styles.card, styles.foodCard]}>
               <LinearGradient
                 colors={[getRiskColor(), getRiskColor() + 'DD']}
@@ -69,7 +49,6 @@ const ResultScreen = ({route, navigation}) => {
               </LinearGradient>
             </View>
 
-            {/* 위험도 평가 카드 */}
             <View style={styles.card}>
               <View style={styles.cardHeader}>
                 <Icon name="alert-circle-outline" size={24} color={colors.danger} />
@@ -78,7 +57,6 @@ const ResultScreen = ({route, navigation}) => {
               <Text style={styles.riskMessage}>{result.risk_message}</Text>
             </View>
 
-            {/* 칼로리 정보 카드 */}
             {result.calorie_info && (
               <View style={styles.card}>
                 <View style={styles.cardHeader}>
@@ -107,7 +85,6 @@ const ResultScreen = ({route, navigation}) => {
               </View>
             )}
 
-            {/* OCR 텍스트 카드 */}
             {result.ocr_texts && result.ocr_texts.length > 0 && (
               <View style={styles.card}>
                 <View style={styles.cardHeader}>
@@ -129,7 +106,6 @@ const ResultScreen = ({route, navigation}) => {
               </View>
             )}
 
-            {/* 영양 분석 카드 (음료인 경우) */}
             {result.nutrition_analysis && (
               <View style={styles.card}>
                 <View style={styles.cardHeader}>
@@ -143,7 +119,6 @@ const ResultScreen = ({route, navigation}) => {
             )}
           </>
         ) : (
-          /* 음식이 감지되지 않은 경우 */
           <View style={[styles.card, styles.noDetectionCard]}>
             <Icon name="food-off" size={64} color={colors.textLight} />
             <Text style={styles.noDetectionTitle}>
@@ -155,11 +130,10 @@ const ResultScreen = ({route, navigation}) => {
           </View>
         )}
 
-        {/* 액션 버튼들 */}
         <View style={styles.actionButtons}>
           <TouchableOpacity
             style={[styles.actionButton, styles.retakeButton]}
-            onPress={handleRetake}>
+            onPress={() => navigation.goBack()}>
             <Icon name="camera-retake" size={24} color={colors.primary} />
             <Text style={[styles.actionButtonText, styles.retakeButtonText]}>
               다시 촬영
@@ -168,7 +142,7 @@ const ResultScreen = ({route, navigation}) => {
 
           <TouchableOpacity
             style={[styles.actionButton, styles.homeButton]}
-            onPress={handleHome}>
+            onPress={() => navigation.navigate('Home')}>
             <LinearGradient
               colors={[colors.primary, colors.accent]}
               style={styles.homeButtonGradient}>

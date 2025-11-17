@@ -36,6 +36,24 @@ const HomeScreen = ({navigation}) => {
     navigation.navigate('Camera');
   };
 
+  const getStatusIcon = () => {
+    if (serverStatus === 'online') return 'check-circle';
+    if (serverStatus === 'offline') return 'close-circle';
+    return 'loading';
+  };
+
+  const getStatusColor = () => {
+    if (serverStatus === 'online') return colors.success;
+    if (serverStatus === 'offline') return colors.danger;
+    return colors.textSecondary;
+  };
+
+  const getStatusText = () => {
+    if (serverStatus === 'online') return '정상';
+    if (serverStatus === 'offline') return '오프라인';
+    return '확인 중...';
+  };
+
   return (
     <ScrollView style={styles.container}>
       <LinearGradient
@@ -47,57 +65,28 @@ const HomeScreen = ({navigation}) => {
       </LinearGradient>
 
       <View style={styles.content}>
-        {/* 서버 상태 */}
         <View style={styles.statusContainer}>
-          <Icon
-            name={
-              serverStatus === 'online'
-                ? 'check-circle'
-                : serverStatus === 'offline'
-                ? 'close-circle'
-                : 'loading'
-            }
-            size={20}
-            color={
-              serverStatus === 'online'
-                ? colors.success
-                : serverStatus === 'offline'
-                ? colors.danger
-                : colors.textSecondary
-            }
-          />
-          <Text style={styles.statusText}>
-            서버 상태:{' '}
-            {serverStatus === 'online'
-              ? '정상'
-              : serverStatus === 'offline'
-              ? '오프라인'
-              : '확인 중...'}
-          </Text>
+          <Icon name={getStatusIcon()} size={20} color={getStatusColor()} />
+          <Text style={styles.statusText}>서버 상태: {getStatusText()}</Text>
         </View>
 
-        {/* 기능 설명 카드 */}
         <View style={styles.card}>
           <Text style={styles.cardTitle}>이 앱의 기능</Text>
-
           <FeatureItem
             icon="camera"
             title="실시간 음식 감지"
             description="카메라로 음식을 촬영하면 AI가 자동으로 인식합니다"
           />
-
           <FeatureItem
             icon="text-recognition"
             title="영양 성분 분석"
             description="음료 라벨의 영양 성분표를 OCR로 읽어 분석합니다"
           />
-
           <FeatureItem
             icon="alert-circle"
             title="당뇨 위험도 평가"
             description="감지된 음식의 당뇨 위험도를 실시간으로 알려줍니다"
           />
-
           <FeatureItem
             icon="food"
             title="칼로리 추정"
@@ -105,7 +94,6 @@ const HomeScreen = ({navigation}) => {
           />
         </View>
 
-        {/* 분석 시작 버튼 */}
         <TouchableOpacity
           style={[
             styles.startButton,
@@ -127,7 +115,6 @@ const HomeScreen = ({navigation}) => {
           </LinearGradient>
         </TouchableOpacity>
 
-        {/* 사용 가이드 */}
         <View style={[styles.card, styles.guideCard]}>
           <Text style={styles.cardTitle}>사용 방법</Text>
           <Text style={styles.guideText}>
