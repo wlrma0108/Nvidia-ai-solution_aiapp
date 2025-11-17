@@ -2,6 +2,11 @@
 
 당뇨병 조기 진단 및 케어를 위한 네이티브 모바일 애플리케이션입니다.
 
+## ⚠️ 시작하기 전에
+
+**이 폴더는 소스 코드만 포함하고 있습니다.**
+Android/iOS 네이티브 폴더를 생성하려면 **[SETUP.md](./SETUP.md)** 파일을 반드시 확인하세요!
+
 ## 주요 기능
 
 - **실시간 음식 감지**: YOLO 모델을 사용한 과일(바나나, 수박) 및 음료 감지
@@ -9,126 +14,75 @@
 - **당뇨 위험도 평가**: 감지된 음식의 당뇨 위험도 실시간 분석
 - **칼로리 추정**: ArUco 마커 기반 크기 측정 및 칼로리 계산
 
-## 기술 스택
-
-### 모바일 앱
-- **React Native 0.72.6**: 크로스 플랫폼 네이티브 앱 프레임워크
-- **React Navigation 6**: 네비게이션 관리
-- **react-native-vision-camera**: 고성능 카메라 API
-- **Axios**: HTTP 클라이언트
-- **React Native Linear Gradient**: 그라데이션 UI
-- **React Native Vector Icons**: 아이콘
-
-### 백엔드 API
-- **FastAPI**: 고성능 Python 웹 프레임워크
-- **Ultralytics YOLO**: 객체 감지 모델
-- **PaddleOCR**: OCR 엔진
-- **OpenCV**: 이미지 처리
-
-## 설치 및 실행
+## 빠른 시작
 
 ### 1. 백엔드 서버 실행
 
 ```bash
-# Docker Compose 사용
-cd backend
+cd ../backend
 docker-compose up --build
-
-# 또는 직접 실행
-cd ..
-pip install -r backend/requirements.txt
-python backend/app.py
 ```
-
-백엔드 서버는 `http://localhost:8000`에서 실행됩니다.
 
 ### 2. 모바일 앱 설정
 
-```bash
-cd mobile-app
+**상세한 설정 방법은 [SETUP.md](./SETUP.md)를 참조하세요!**
 
-# 의존성 설치
+간단 요약:
+```bash
+# React Native CLI 사용
+npx react-native init DiabetesCareApp --version 0.72.6
+# 소스 파일 복사 후
 npm install
-# 또는
-yarn install
-
-# iOS Pod 설치 (macOS만 해당)
-cd ios
-pod install
-cd ..
-```
-
-### 3. API URL 설정
-
-`mobile-app/src/services/api.js` 파일에서 백엔드 서버 URL을 설정합니다:
-
-```javascript
-const API_BASE_URL = 'http://YOUR_SERVER_IP:8000';
-```
-
-- 로컬 테스트 (Android 에뮬레이터): `http://10.0.2.2:8000`
-- 로컬 테스트 (iOS 시뮬레이터): `http://localhost:8000`
-- 실제 디바이스: 서버의 실제 IP 주소 사용
-
-### 4. 앱 실행
-
-#### Android
-```bash
 npm run android
-# 또는
-yarn android
+
+# 또는 Expo 사용 (더 쉬움)
+npx create-expo-app@latest DiabetesCareApp
+# 소스 파일 복사 및 패키지 설치 후
+npx expo start
 ```
 
-#### iOS (macOS만 가능)
-```bash
-npm run ios
-# 또는
-yarn ios
-```
+## 기술 스택
 
-## 권한 설정
-
-### Android (`android/app/src/main/AndroidManifest.xml`)
-```xml
-<uses-permission android:name="android.permission.CAMERA" />
-<uses-permission android:name="android.permission.INTERNET" />
-```
-
-### iOS (`ios/DiabetesCareApp/Info.plist`)
-```xml
-<key>NSCameraUsageDescription</key>
-<string>음식을 촬영하여 당뇨 위험도를 분석하기 위해 카메라가 필요합니다.</string>
-```
+- **React Native 0.72.6**: 크로스 플랫폼 네이티브 앱
+- **React Navigation 6**: 네비게이션 관리
+- **react-native-vision-camera**: 고성능 카메라 API
+- **Axios**: HTTP 클라이언트
 
 ## 프로젝트 구조
 
 ```
 mobile-app/
-├── App.js                      # 메인 앱 컴포넌트
-├── index.js                    # 앱 진입점
-├── package.json
 ├── src/
-│   ├── screens/
-│   │   ├── HomeScreen.js       # 홈 화면
-│   │   ├── CameraScreen.js     # 카메라 촬영 화면
-│   │   └── ResultScreen.js     # 분석 결과 화면
-│   ├── services/
-│   │   └── api.js              # API 통신 로직
-│   └── styles/
-│       └── theme.js            # 디자인 시스템 (색상, 타이포그래피 등)
-├── android/                    # Android 네이티브 코드
-└── ios/                        # iOS 네이티브 코드
+│   ├── screens/          # 화면 컴포넌트
+│   │   ├── HomeScreen.js
+│   │   ├── CameraScreen.js
+│   │   └── ResultScreen.js
+│   ├── services/         # API 통신
+│   │   └── api.js
+│   └── styles/           # 디자인 시스템
+│       └── theme.js
+├── App.js
+├── package.json
+├── SETUP.md             # 🔥 프로젝트 초기화 가이드
+└── README.md
 ```
 
-## 디자인 시스템
+## API 설정
 
-### 컬러 팔레트
-- **Primary**: `#00BFA5` (청록색) - 메인 브랜드 컬러
-- **Danger**: `#FF5252` (빨강) - 위험/경고
-- **Warning**: `#FFC107` (노랑) - 주의
-- **Success**: `#4CAF50` (녹색) - 안전
+`src/services/api.js`에서 백엔드 서버 URL을 설정하세요:
 
-### 주요 화면
+```javascript
+// Android 에뮬레이터
+const API_BASE_URL = 'http://10.0.2.2:8000';
+
+// iOS 시뮬레이터
+const API_BASE_URL = 'http://localhost:8000';
+
+// 실제 디바이스 (컴퓨터의 IP 주소)
+const API_BASE_URL = 'http://192.168.x.x:8000';
+```
+
+## 주요 화면
 
 1. **홈 화면**: 앱 소개 및 기능 설명
 2. **카메라 화면**: 실시간 카메라 뷰와 촬영 가이드
@@ -152,9 +106,14 @@ mobile-app/
 
 ### Metro Bundler 오류
 ```bash
-# 캐시 삭제 후 재시작
 npm start -- --reset-cache
 ```
+
+## 더 알아보기
+
+- **프로젝트 초기화**: [SETUP.md](./SETUP.md)
+- **메인 프로젝트**: [../README.md](../README.md)
+- **버전 정보**: [../VERSIONS.md](../VERSIONS.md)
 
 ## 라이선스
 
