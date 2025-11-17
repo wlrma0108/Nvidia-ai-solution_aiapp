@@ -1,15 +1,26 @@
-version: '3.8'
-
 services:
   api:
     build:
       context: ..
       dockerfile: backend/Dockerfile
+    container_name: diabetes-care-api
     ports:
       - "8000:8000"
     volumes:
       - ..:/app
+      - paddle-cache:/app/.paddle_cache
     environment:
       - PADDLE_HOME=/app/.paddle_cache
       - HOME=/app
+      - PYTHONUNBUFFERED=1
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import requests; requests.get('http://localhost:8000/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+volumes:
+  paddle-cache:
+    driver: local
