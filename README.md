@@ -11,9 +11,12 @@
 - [주요 기능](#주요-기능)
 - [기술 아키텍처](#기술-아키텍처)
 - [프로젝트 구조](#프로젝트-구조)
+- [환경 설정 가이드](#환경-설정-가이드)
 - [설치 및 실행](#설치-및-실행)
+- [테스트 방법](#테스트-방법)
 - [사용 방법](#사용-방법)
 - [API 문서](#api-문서)
+- [트러블슈팅](#트러블슈팅)
 - [기술 상세](#기술-상세)
 
 ## 🎯 주요 기능
@@ -84,7 +87,7 @@
 Nvidia-ai-solution_aiapp/
 ├── backend/                    # FastAPI 백엔드
 │   ├── app.py                 # FastAPI 앱 메인
-│   ├── requirements.txt       # Python 의존성
+│   ├── requirements.txt       # Python 의존성 (버전 고정)
 │   ├── Dockerfile            # Docker 설정
 │   └── docker-compose.yml    # Docker Compose 설정
 │
@@ -95,84 +98,381 @@ Nvidia-ai-solution_aiapp/
 │   │   │   ├── CameraScreen.js
 │   │   │   └── ResultScreen.js
 │   │   ├── services/         # API 통신
-│   │   │   └── api.js
+│   │   │   └── api.js       # ⚠️ API_BASE_URL 설정 필요
 │   │   └── styles/           # 디자인 시스템
 │   │       └── theme.js
 │   ├── App.js
-│   └── package.json
+│   ├── package.json          # 의존성 버전 고정
+│   └── SETUP.md             # React Native 초기 설정 가이드
 │
-├── best.pt                    # YOLO 학습 모델
-├── config.py                  # 설정 (Windows)
-├── config_linux.py           # 설정 (Linux/Docker)
+├── best.pt                    # YOLO 학습 모델 (필수)
+├── config.py                  # 설정 (Docker/Windows 자동 감지)
 ├── detection.py              # 객체 감지 로직
 ├── tracking.py               # Kalman 트래킹
 ├── ocr_utils.py             # OCR 및 영양 분석
 ├── calorie.py               # 칼로리 추정
-├── models.py                # 모델 로드
+├── models.py                # 모델 Lazy Loading
 ├── main.py                  # 데스크탑 버전 (OpenCV)
+├── DrugDetection.py         # OCR 단독 테스트 스크립트
+├── .nvmrc                   # Node.js 버전 (18.18.0)
+├── .python-version          # Python 버전 (3.10.13)
+├── VERSIONS.md             # 의존성 버전 문서
 └── README.md
 ```
+
+## ⚙️ 환경 설정 가이드
+
+### 1. 백엔드 환경 변수 설정
+
+`config.py` 파일은 **Docker와 Windows 환경을 자동으로 감지**합니다. 추가 설정이 필요한 경우:
+
+#### 1-1. 환경 변수 (선택사항)
+
+```bash
+# Linux/Docker 환경
+export PADDLE_HOME=/app/.paddle_cache
+export FRUIT_MODEL_PATH=/app/best.pt
+export COCO_MODEL_PATH=yolov8n.pt
+
+# Windows 환경 (PowerShell)
+$env:FRUIT_MODEL_PATH="C:\path\to\best.pt"
+```
+
+#### 1-2. Docker Compose 환경 변수
+
+`backend/docker-compose.yml` 파일에서 수정 가능:
+
+```yaml
+environment:
+  - PADDLE_HOME=/app/.paddle_cache  # PaddleOCR 캐시 디렉토리
+  - HOME=/app
+  - PYTHONUNBUFFERED=1
+  - FRUIT_MODEL_PATH=/app/best.pt  # 과일 YOLO 모델 경로
+  - COCO_MODEL_PATH=yolov8n.pt     # 음료 YOLO 모델 경로
+```
+
+**주의**: Docker 환경에서는 기본값으로 잘 작동하므로 수정할 필요 없습니다.
+
+### 2. 프론트엔드 API URL 설정 (필수)
+
+`mobile-app/src/services/api.js` 파일의 API URL을 환경에 맞게 수정:
+
+#### 2-1. 로컬 서버 연결 (개발 환경)
+
+```javascript
+// mobile-app/src/services/api.js
+const API_BASE_URL = 'http://localhost:8000';  // ❌ 실제 기기에서 작동 안 함
+```
+
+#### 2-2. 실제 기기 연결 (권장)
+
+**Android 에뮬레이터:**
+```javascript
+const API_BASE_URL = 'http://10.0.2.2:8000';
+```
+
+**iOS 시뮬레이터:**
+```javascript
+const API_BASE_URL = 'http://localhost:8000';
+```
+
+**실제 Android/iOS 기기 (WiFi 연결):**
+```javascript
+// 개발 PC의 로컬 IP 주소로 변경
+const API_BASE_URL = 'http://192.168.0.10:8000';
+```
+
+**로컬 IP 확인 방법:**
+```bash
+# Windows
+ipconfig
+
+# macOS/Linux
+ifconfig
+# 또는
+ip addr show
+```
+
+WiFi 네트워크에서 `192.168.x.x` 형태의 IPv4 주소를 찾아 사용하세요.
+
+#### 2-3. 프로덕션 환경
+
+```javascript
+const API_BASE_URL = 'https://your-api-server.com';
+```
+
+### 3. 모델 파일 확인
+
+**필수 파일:**
+- `best.pt` - 과일 감지용 YOLO 모델 (프로젝트 루트에 위치)
+- `yolov8n.pt` - 음료 감지용 COCO 모델 (자동 다운로드)
+
+`best.pt` 파일이 없으면 백엔드가 모델 로딩 시점에 오류를 발생시킵니다.
 
 ## 🚀 설치 및 실행
 
 ### 사전 요구사항
 
-- **Python 3.10+**
-- **Node.js 16+**
-- **React Native 개발 환경** ([공식 가이드](https://reactnative.dev/docs/environment-setup))
-- **Docker** (선택사항)
+**필수:**
+- **Python 3.10.13** (정확한 버전 권장)
+- **Node.js 18.18.0** (정확한 버전 권장)
+- **npm 8.0.0+**
 
-### 1. 저장소 클론
+**선택사항:**
+- **Docker & Docker Compose** (백엔드 실행 시 권장)
+- **Android Studio** (Android 개발 시)
+- **Xcode** (iOS 개발 시, macOS 전용)
+
+### Step 1: 저장소 클론
 
 ```bash
 git clone https://github.com/wlrma0108/Nvidia-ai-solution_aiapp.git
 cd Nvidia-ai-solution_aiapp
 ```
 
-### 2. 백엔드 서버 실행
+### Step 2: 백엔드 서버 실행
 
-#### Option A: Docker 사용 (권장)
+#### 방법 A: Docker 사용 (권장)
 
 ```bash
+# 1. backend 디렉토리로 이동
 cd backend
+
+# 2. Docker Compose로 빌드 및 실행
 docker-compose up --build
+
+# 백그라운드 실행 (터미널 유지 불필요)
+docker-compose up -d --build
+
+# 로그 확인
+docker-compose logs -f
 ```
 
-#### Option B: 직접 실행
+**서버 확인:**
+- API: http://localhost:8000
+- API 문서: http://localhost:8000/docs
+- Health Check: http://localhost:8000/health
+
+**Docker 중지:**
+```bash
+docker-compose down
+```
+
+#### 방법 B: 로컬 직접 실행
 
 ```bash
-# 의존성 설치
+# 1. Python 가상환경 생성 (권장)
+python -m venv venv
+
+# 2. 가상환경 활성화
+# Windows
+venv\Scripts\activate
+# macOS/Linux
+source venv/bin/activate
+
+# 3. 의존성 설치
 pip install -r backend/requirements.txt
 
-# 서버 실행
-python backend/app.py
+# 4. 서버 실행 (프로젝트 루트에서)
+cd backend
+python app.py
+
+# 또는 uvicorn 직접 실행
+uvicorn app:app --host 0.0.0.0 --port 8000 --reload
 ```
 
-서버는 `http://localhost:8000`에서 실행됩니다.
+**서버 확인:**
+```bash
+curl http://localhost:8000/health
+```
 
-API 문서: `http://localhost:8000/docs`
+예상 응답:
+```json
+{"status": "healthy"}
+```
 
-### 3. 모바일 앱 설정 및 실행
+### Step 3: 모바일 앱 설정 및 실행
+
+#### 3-1. 의존성 설치
 
 ```bash
 cd mobile-app
 
-# 의존성 설치
+# npm 사용
 npm install
-# 또는
+
+# 또는 yarn 사용
 yarn install
+```
 
-# iOS Pod 설치 (macOS만)
-cd ios && pod install && cd ..
+#### 3-2. API URL 설정 (필수)
 
-# API URL 설정
-# src/services/api.js 파일에서 API_BASE_URL 수정
+`src/services/api.js` 파일 수정:
 
-# Android 실행
+```javascript
+// 개발 환경에 맞게 선택
+const API_BASE_URL = 'http://10.0.2.2:8000';  // Android 에뮬레이터
+// const API_BASE_URL = 'http://192.168.0.10:8000';  // 실제 기기
+```
+
+#### 3-3. React Native 환경 설정
+
+**처음 실행하는 경우** `SETUP.md` 가이드를 참고하여 Android/iOS 프로젝트를 초기화하세요:
+
+```bash
+# React Native CLI 사용 (권장)
+npx react-native init MyApp
+# 생성된 android/ios 폴더를 mobile-app으로 복사
+
+# 또는 Expo 사용
+npx expo init MyApp --template bare-workflow
+```
+
+자세한 내용은 `mobile-app/SETUP.md`를 참고하세요.
+
+#### 3-4. iOS Pod 설치 (macOS만)
+
+```bash
+cd ios
+pod install
+cd ..
+```
+
+#### 3-5. 앱 실행
+
+**Android:**
+```bash
+# Android 에뮬레이터 또는 연결된 기기에서 실행
 npm run android
 
-# iOS 실행 (macOS만)
+# 또는
+npx react-native run-android
+```
+
+**iOS (macOS만):**
+```bash
 npm run ios
+
+# 또는
+npx react-native run-ios
+```
+
+**Metro 번들러 시작 (별도 터미널):**
+```bash
+npm start
+```
+
+## 🧪 테스트 방법
+
+### 1. 백엔드 API 테스트
+
+#### 1-1. Health Check 테스트
+
+```bash
+curl http://localhost:8000/health
+```
+
+예상 결과:
+```json
+{"status": "healthy"}
+```
+
+#### 1-2. 이미지 분석 테스트 (curl)
+
+```bash
+curl -X POST "http://localhost:8000/analyze" \
+  -H "Content-Type: multipart/form-data" \
+  -F "file=@/path/to/your/image.jpg"
+```
+
+예상 결과:
+```json
+{
+  "detected": true,
+  "food_type": "Banana",
+  "food_class": 0,
+  "confidence": 0.92,
+  "risk_message": "바나나는 당지수가 높아서...",
+  "ocr_texts": [],
+  "nutrition_analysis": null,
+  "calorie_info": {
+    "grams": 118.0,
+    "kcal": 105.0,
+    "scale_detected": false
+  }
+}
+```
+
+#### 1-3. Postman/Thunder Client 테스트
+
+1. **POST** 요청 생성: `http://localhost:8000/analyze`
+2. **Body** 탭 → **form-data** 선택
+3. Key: `file`, Type: `File`, Value: 이미지 파일 선택
+4. **Send** 클릭
+
+#### 1-4. Swagger UI 테스트 (가장 간단)
+
+브라우저에서 http://localhost:8000/docs 접속:
+1. `/analyze` 엔드포인트 클릭
+2. "Try it out" 버튼 클릭
+3. 이미지 파일 업로드
+4. "Execute" 버튼 클릭
+5. 결과 확인
+
+### 2. OCR 단독 테스트
+
+```bash
+# 이미지 경로를 인자로 전달
+python DrugDetection.py /path/to/drink_label.jpg
+
+# 환경 변수로 기본 경로 설정
+export DEFAULT_IMG_PATH=/path/to/image.jpg
+python DrugDetection.py
+```
+
+### 3. 데스크탑 버전 테스트 (OpenCV)
+
+```bash
+# 웹캠으로 실시간 감지
+python main.py
+
+# 종료: 'q' 키 누르기
+```
+
+### 4. 모바일 앱 테스트
+
+#### 4-1. 서버 연결 확인
+1. 앱 실행
+2. 홈 화면에서 서버 상태 확인 (초록색: 정상, 빨간색: 오류)
+3. 상태가 오프라인이면 API URL을 확인하세요
+
+#### 4-2. 음식 감지 테스트
+1. "촬영 시작" 버튼 클릭
+2. 카메라 권한 허용
+3. 바나나, 수박, 또는 음료 라벨을 촬영
+4. 결과 화면 확인
+
+#### 4-3. 로그 확인
+```bash
+# React Native 로그
+npx react-native log-android  # Android
+npx react-native log-ios      # iOS
+```
+
+### 5. Docker 컨테이너 테스트
+
+```bash
+# 컨테이너 상태 확인
+docker-compose ps
+
+# 컨테이너 로그 확인
+docker-compose logs -f api
+
+# 컨테이너 내부 접속
+docker-compose exec api bash
+
+# 컨테이너 내에서 Python 테스트
+python -c "from models import get_fruit_model; print('Model loaded:', get_fruit_model())"
 ```
 
 ## 📱 사용 방법
@@ -184,6 +484,7 @@ npm run ios
 
 ### 2. 카메라 화면
 - 음식이나 음료를 화면 중앙에 배치
+- 음료의 경우 라벨이 정면으로 보이도록 촬영
 - 촬영 버튼 클릭
 - AI가 자동으로 분석 시작
 
@@ -194,7 +495,7 @@ npm run ios
   - 🟡 노랑: 주의 필요 (음료)
   - 🟢 녹색: 안전
 - **칼로리 정보**: 예상 중량 및 칼로리
-- **OCR 결과**: 인식된 텍스트
+- **OCR 결과**: 인식된 텍스트 (음료만)
 - **영양 분석**: 음료인 경우 상세 영양 평가
 
 ## 📖 API 문서
@@ -229,6 +530,19 @@ file: [이미지 파일]
 }
 ```
 
+**응답 필드 설명:**
+- `detected` (boolean): 음식 감지 여부
+- `food_type` (string): 음식 종류 ("Banana", "Watermelon", "Drink")
+- `food_class` (int): 음식 클래스 ID (0: 바나나, 1: 수박, 2: 음료)
+- `confidence` (float): 감지 신뢰도 (0.0 ~ 1.0)
+- `risk_message` (string): 당뇨 위험도 메시지
+- `ocr_texts` (array): OCR로 추출한 텍스트 목록
+- `nutrition_analysis` (string): 영양 성분 분석 (음료만)
+- `calorie_info` (object): 칼로리 정보
+  - `grams`: 예상 중량 (g)
+  - `kcal`: 예상 칼로리 (kcal)
+  - `scale_detected`: ArUco 마커 감지 여부
+
 ### GET `/health`
 
 서버 상태를 확인합니다.
@@ -238,6 +552,159 @@ file: [이미지 파일]
 {
   "status": "healthy"
 }
+```
+
+### GET `/`
+
+API 정보를 확인합니다.
+
+**응답**
+```json
+{
+  "status": "ok",
+  "message": "Diabetes Care Food Detection API is running",
+  "version": "1.0.0"
+}
+```
+
+## 🔧 트러블슈팅
+
+### 백엔드 문제
+
+#### 1. "ModuleNotFoundError: No module named 'xxx'"
+```bash
+# 해결: 의존성 재설치
+pip install -r backend/requirements.txt
+
+# Docker 사용 시
+docker-compose down
+docker-compose up --build
+```
+
+#### 2. "FileNotFoundError: best.pt not found"
+```bash
+# 해결: best.pt 파일을 프로젝트 루트에 배치
+ls best.pt  # 파일 존재 확인
+
+# Docker 볼륨 마운트 확인
+docker-compose exec api ls /app/best.pt
+```
+
+#### 3. Docker 빌드 오류: "libgl1-mesa-glx has no installation candidate"
+```bash
+# 해결: 이미 수정됨 (Dockerfile에서 libgl1 사용)
+# 최신 코드를 pull 받으세요
+git pull origin main
+```
+
+#### 4. PaddleOCR 다운로드 느림
+```bash
+# 해결: 캐시 디렉토리 사용 (Docker Compose에 이미 설정됨)
+# 로컬 실행 시 환경 변수 설정
+export PADDLE_HOME=~/.paddle_cache
+```
+
+#### 5. "Address already in use: 8000"
+```bash
+# 해결: 포트 변경 또는 기존 프로세스 종료
+# 포트 사용 중인 프로세스 찾기
+lsof -i :8000  # macOS/Linux
+netstat -ano | findstr :8000  # Windows
+
+# 프로세스 종료 후 재시작
+```
+
+### 프론트엔드 문제
+
+#### 1. "Unable to connect to server"
+```javascript
+// 해결 1: API URL 확인
+// src/services/api.js
+
+// Android 에뮬레이터
+const API_BASE_URL = 'http://10.0.2.2:8000';
+
+// 실제 기기 (로컬 IP 확인 필요)
+const API_BASE_URL = 'http://192.168.0.10:8000';
+```
+
+```bash
+# 해결 2: 방화벽 확인
+# Windows 방화벽에서 8000 포트 허용
+
+# 해결 3: 백엔드 서버 실행 확인
+curl http://localhost:8000/health
+```
+
+#### 2. "Android project not found"
+```bash
+# 해결: SETUP.md 가이드 참고
+cd mobile-app
+# React Native CLI로 프로젝트 초기화
+npx react-native init TempApp
+# android/ 폴더를 복사
+```
+
+#### 3. "react-native-vision-camera permission denied"
+```javascript
+// 해결: AndroidManifest.xml 확인
+// android/app/src/main/AndroidManifest.xml
+<uses-permission android:name="android.permission.CAMERA" />
+
+// Info.plist 확인 (iOS)
+<key>NSCameraUsageDescription</key>
+<string>음식을 촬영하여 분석하기 위해 카메라 권한이 필요합니다.</string>
+```
+
+#### 4. Metro bundler 오류
+```bash
+# 해결: 캐시 클리어
+npm start -- --reset-cache
+
+# 또는
+npx react-native start --reset-cache
+```
+
+#### 5. "Unable to resolve module"
+```bash
+# 해결: node_modules 재설치
+rm -rf node_modules
+npm install
+
+# iOS의 경우 pod 재설치
+cd ios && pod install && cd ..
+```
+
+### 일반적인 문제
+
+#### 1. 버전 충돌
+```bash
+# 해결: 정확한 버전 사용
+# Python
+python --version  # 3.10.13 권장
+
+# Node.js
+node --version  # 18.18.0 권장
+nvm use 18.18.0  # nvm 사용 시
+
+# 또는 .nvmrc, .python-version 파일 참고
+```
+
+#### 2. 네트워크 타임아웃
+```javascript
+// 해결: api.js 타임아웃 증가
+const api = axios.create({
+  baseURL: API_BASE_URL,
+  timeout: 60000,  // 30000 → 60000으로 증가
+  headers: {'Content-Type': 'multipart/form-data'},
+});
+```
+
+#### 3. Docker 디스크 공간 부족
+```bash
+# 해결: Docker 정리
+docker system prune -a
+docker volume prune
 ```
 
 ## 🔬 기술 상세
@@ -281,6 +748,23 @@ file: [이미지 파일]
    - 객체 크기 × 밀도 × 형태 계수
    - 음식별 100g 당 칼로리 기준
 
+### Lazy Loading 패턴
+
+모델은 **처음 사용될 때만 로딩**되어 다음 장점이 있습니다:
+- 앱 시작 속도 향상
+- 모델 파일이 없어도 앱 크래시 방지
+- 메모리 효율적 사용
+
+```python
+# models.py
+def get_fruit_model():
+    global _fruit_model
+    if _fruit_model is None:
+        print(f"[INFO] Loading YOLO fruit model: {FRUIT_MODEL_PATH}")
+        _fruit_model = YOLO(FRUIT_MODEL_PATH)
+    return _fruit_model
+```
+
 ## 🎨 디자인 시스템
 
 ### 컬러 팔레트
@@ -305,6 +789,12 @@ file: [이미지 파일]
 최종적으로는 detection, tracking, OCR, 칼로리 추정을 개별 모듈로 분리한 아키텍처를 구성하여,
 한 번의 카메라 촬영으로 이미지와 라벨 텍스트를 함께 분석하고,
 당뇨 위험도와 칼로리를 설명할 수 있는 수준까지 고도화하였습니다.
+
+## 📚 추가 문서
+
+- **SETUP.md**: React Native 프로젝트 초기 설정 가이드
+- **VERSIONS.md**: 의존성 버전 및 호환성 매트릭스
+- **API Docs**: http://localhost:8000/docs (서버 실행 후)
 
 ## 🤝 기여
 
