@@ -1,10 +1,16 @@
 # 당뇨 케어 - AI 기반 음식 건강 영향 분석 시스템
 
-당뇨병 조기 진단 및 케어를 위한 AI 기반 모바일 애플리케이션입니다. 카메라로 음식을 촬영하면 AI가 자동으로 음식을 인식하고, OCR로 영양 성분을 분석하여 당뇨 위험도를 실시간으로 알려줍니다.
+당뇨병 조기 진단 및 케어를 위한 AI 기반 애플리케이션입니다. 카메라로 음식을 촬영하면 AI가 자동으로 음식을 인식하고, OCR로 영양 성분을 분석하여 당뇨 위험도를 실시간으로 알려줍니다.
+
+**🎯 두 가지 버전 제공:**
+- **📱 모바일 앱** (React Native) - Android/iOS 네이티브 앱
+- **🌐 웹 앱** (React + Vite) - 브라우저에서 바로 사용
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![Python](https://img.shields.io/badge/python-3.10-blue.svg)
 ![React Native](https://img.shields.io/badge/react--native-0.72.6-blue.svg)
+![React](https://img.shields.io/badge/react-18.2.0-blue.svg)
+![Vite](https://img.shields.io/badge/vite-5.0.0-blue.svg)
 
 ## 📋 목차
 
@@ -13,6 +19,8 @@
 - [프로젝트 구조](#프로젝트-구조)
 - [환경 설정 가이드](#환경-설정-가이드)
 - [설치 및 실행](#설치-및-실행)
+  - [모바일 앱 (React Native)](#step-3-모바일-앱-설정-및-실행)
+  - [웹 앱 (React + Vite)](#웹-앱-실행)
 - [VSCode에서 개발하기](#vscode에서-개발하기)
 - [테스트 방법](#테스트-방법)
 - [사용 방법](#사용-방법)
@@ -92,7 +100,7 @@ Nvidia-ai-solution_aiapp/
 │   ├── Dockerfile            # Docker 설정
 │   └── docker-compose.yml    # Docker Compose 설정
 │
-├── mobile-app/                # React Native 앱
+├── mobile-app/                # 📱 React Native 모바일 앱
 │   ├── src/
 │   │   ├── screens/          # 화면 컴포넌트
 │   │   │   ├── HomeScreen.js
@@ -102,9 +110,24 @@ Nvidia-ai-solution_aiapp/
 │   │   │   └── api.js       # ⚠️ API_BASE_URL 설정 필요
 │   │   └── styles/           # 디자인 시스템
 │   │       └── theme.js
+│   ├── android/              # Android 네이티브 설정
 │   ├── App.js
 │   ├── package.json          # 의존성 버전 고정
-│   └── SETUP.md             # React Native 초기 설정 가이드
+│   └── README.md            # 모바일 앱 가이드
+│
+├── web-app/                   # 🌐 React 웹 애플리케이션
+│   ├── src/
+│   │   ├── pages/            # 페이지 컴포넌트
+│   │   │   ├── HomePage.jsx
+│   │   │   ├── CameraPage.jsx  # 웹 카메라 API 사용
+│   │   │   └── ResultPage.jsx
+│   │   ├── services/         # API 통신
+│   │   │   └── api.js
+│   │   └── styles/           # CSS 스타일
+│   ├── App.jsx
+│   ├── vite.config.js       # Vite 설정
+│   ├── package.json
+│   └── README.md            # 웹앱 가이드
 │
 ├── best.pt                    # YOLO 학습 모델 (필수)
 ├── config.py                  # 설정 (Docker/Windows 자동 감지)
@@ -362,6 +385,55 @@ npx react-native run-ios
 ```bash
 npm start
 ```
+
+### 웹 앱 실행
+
+웹 브라우저에서 바로 사용할 수 있는 버전입니다.
+
+#### 1. 의존성 설치
+
+```bash
+cd web-app
+npm install
+```
+
+#### 2. 환경 변수 설정 (선택사항)
+
+```bash
+cp .env.example .env
+```
+
+`.env` 파일에서 API URL을 설정할 수 있습니다:
+```env
+VITE_API_URL=http://localhost:8000
+```
+
+#### 3. 백엔드 서버 실행 확인
+
+웹앱을 실행하기 전에 백엔드 서버가 http://localhost:8000 에서 실행 중인지 확인하세요.
+
+#### 4. 웹앱 시작
+
+```bash
+npm run dev
+```
+
+브라우저에서 http://localhost:3000 에 접속합니다.
+
+#### 5. 프로덕션 빌드
+
+```bash
+npm run build
+npm run preview
+```
+
+**특징:**
+- ✅ 앱 설치 불필요 - 브라우저에서 바로 실행
+- ✅ 웹캠 지원 - 데스크탑/노트북 카메라 사용
+- ✅ 모바일 브라우저 호환 - 스마트폰에서도 접속 가능
+- ✅ 반응형 디자인 - 다양한 화면 크기 지원
+
+**자세한 사용법은 [web-app/README.md](web-app/README.md)를 참고하세요.**
 
 ## 💻 VSCode에서 개발하기
 

@@ -1,0 +1,244 @@
+.result-page {
+  min-height: 100vh;
+  padding: 20px;
+  background: var(--background);
+}
+
+.result-container {
+  max-width: 900px;
+  margin: 0 auto;
+  background: var(--surface);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-md);
+  overflow: hidden;
+}
+
+.result-header {
+  background: linear-gradient(135deg, var(--primary-color), #357ABD);
+  padding: 24px;
+  text-align: center;
+}
+
+.result-title {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: white;
+  margin: 0;
+}
+
+.result-content {
+  padding: 30px;
+}
+
+.image-section {
+  margin-bottom: 30px;
+  border-radius: var(--border-radius-md);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+
+.result-image {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.analysis-section {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.section-title {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.detected-items {
+  background: var(--background);
+  padding: 20px;
+  border-radius: var(--border-radius-md);
+}
+
+.items-list {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.item {
+  background: var(--surface);
+  padding: 8px 16px;
+  border-radius: var(--border-radius-sm);
+  border: 2px solid var(--primary-color);
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.item-name {
+  font-size: 1rem;
+}
+
+.no-items {
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+.risk-card {
+  background: var(--background);
+  padding: 24px;
+  border-radius: var(--border-radius-md);
+  border-left: 6px solid;
+}
+
+.risk-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.risk-icon {
+  font-size: 2rem;
+}
+
+.risk-title {
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.risk-message {
+  font-size: 1rem;
+  color: var(--text-primary);
+  line-height: 1.6;
+  margin: 0;
+}
+
+.nutrition-section {
+  background: var(--background);
+  padding: 20px;
+  border-radius: var(--border-radius-md);
+}
+
+.nutrition-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 16px;
+}
+
+.nutrition-item {
+  background: var(--surface);
+  padding: 16px;
+  border-radius: var(--border-radius-sm);
+  border: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.nutrition-label {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.nutrition-value {
+  font-size: 1.1rem;
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.ocr-section {
+  background: var(--background);
+  padding: 20px;
+  border-radius: var(--border-radius-md);
+}
+
+.ocr-text {
+  background: var(--surface);
+  padding: 16px;
+  border-radius: var(--border-radius-sm);
+  border: 1px solid var(--border-color);
+  font-family: 'Courier New', monospace;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: var(--text-primary);
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+.result-actions {
+  display: flex;
+  gap: 12px;
+  padding: 24px 30px;
+  border-top: 1px solid var(--border-color);
+}
+
+.action-button {
+  flex: 1;
+  padding: 14px 24px;
+  font-size: 1.05rem;
+  font-weight: 600;
+  border-radius: var(--border-radius-md);
+  transition: var(--transition);
+}
+
+.action-button.primary {
+  background: linear-gradient(135deg, var(--primary-color), #357ABD);
+  color: white;
+  box-shadow: var(--shadow-sm);
+}
+
+.action-button.primary:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.action-button.secondary {
+  background: var(--background);
+  color: var(--text-primary);
+  border: 2px solid var(--border-color);
+}
+
+.action-button.secondary:hover {
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+}
+
+@media (max-width: 768px) {
+  .result-container {
+    border-radius: 0;
+  }
+
+  .result-content {
+    padding: 20px;
+  }
+
+  .result-title {
+    font-size: 1.5rem;
+  }
+
+  .section-title {
+    font-size: 1.1rem;
+  }
+
+  .nutrition-grid {
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  }
+
+  .result-actions {
+    flex-direction: column;
+    padding: 20px;
+  }
+
+  .action-button {
+    width: 100%;
+  }
+}
