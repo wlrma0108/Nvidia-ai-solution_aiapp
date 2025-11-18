@@ -8,7 +8,8 @@
     "ios": "react-native run-ios",
     "start": "react-native start",
     "test": "jest",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "postinstall": "npx react-native-asset || echo 'Skipping icon linking - android/ios folders not found yet'"
   },
   "dependencies": {
     "react": "18.2.0",
