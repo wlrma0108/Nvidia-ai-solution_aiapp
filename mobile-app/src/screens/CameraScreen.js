@@ -75,10 +75,20 @@ const CameraScreen = ({navigation}) => {
 
   const requestCameraPermission = async () => {
     try {
+      console.log('[Camera] Requesting camera permission...');
+      const currentPermission = await Camera.getCameraPermissionStatus();
+      console.log('[Camera] Current permission status:', currentPermission);
+
+      if (currentPermission === 'authorized') {
+        setHasPermission(true);
+        return;
+      }
+
       const permission = await Camera.requestCameraPermission();
+      console.log('[Camera] Permission request result:', permission);
       setHasPermission(permission === 'authorized');
 
-      if (permission === 'denied') {
+      if (permission === 'denied' || permission === 'restricted') {
         Alert.alert(
           '카메라 권한 필요',
           '음식 분석을 위해 카메라 권한이 필요합니다. 설정에서 권한을 허용해주세요.',
@@ -98,8 +108,18 @@ const CameraScreen = ({navigation}) => {
         );
       }
     } catch (error) {
-      console.error('Camera permission error:', error);
-      Alert.alert('오류', '카메라 권한 요청 중 오류가 발생했습니다.');
+      console.error('[Camera] Permission error:', error);
+      Alert.alert(
+        '카메라 초기화 오류',
+        '카메라 권한 요청 중 오류가 발생했습니다.\n\n' +
+        '가능한 해결 방법:\n' +
+        '1. 앱을 완전히 종료 후 재시작\n' +
+        '2. 기기 설정에서 카메라 권한 확인\n' +
+        '3. 앱 재설치',
+        [
+          {text: '확인'},
+        ]
+      );
     }
   };
 

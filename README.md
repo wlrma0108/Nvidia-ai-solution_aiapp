@@ -828,13 +828,104 @@ npx react-native init TempApp
 # android/ 폴더를 복사
 ```
 
-#### 3. "react-native-vision-camera permission denied"
-```javascript
-// 해결: AndroidManifest.xml 확인
-// android/app/src/main/AndroidManifest.xml
-<uses-permission android:name="android.permission.CAMERA" />
+#### 3. 카메라가 실행되지 않음
 
-// Info.plist 확인 (iOS)
+**증상:**
+- 앱을 실행했지만 카메라 화면이 검은색으로 표시됨
+- "카메라 권한이 필요합니다" 메시지가 계속 표시됨
+- 앱이 카메라 권한을 요청하지 않음
+
+**해결 방법:**
+
+**1단계: Android 폴더가 존재하는지 확인**
+```bash
+cd mobile-app
+ls -la android/
+```
+
+만약 `android/` 폴더가 없다면, 이미 생성되어 있어야 합니다. 이 프로젝트에는 Android 설정이 포함되어 있습니다.
+
+**2단계: 의존성 설치 및 네이티브 모듈 링크**
+```bash
+cd mobile-app
+npm install
+
+# Android 폴더로 이동
+cd android
+
+# Gradle 캐시 클리어 및 클린 빌드
+./gradlew clean
+
+# 프로젝트 루트로 돌아가기
+cd ../..
+```
+
+**3단계: AndroidManifest.xml 권한 확인**
+
+`mobile-app/android/app/src/main/AndroidManifest.xml` 파일에 다음 권한이 있는지 확인:
+
+```xml
+<uses-permission android:name="android.permission.INTERNET" />
+<uses-permission android:name="android.permission.CAMERA" />
+<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+
+<uses-feature android:name="android.hardware.camera" android:required="true" />
+<uses-feature android:name="android.hardware.camera.autofocus" android:required="false" />
+```
+
+**4단계: 앱 완전히 재빌드**
+```bash
+cd mobile-app
+
+# Android 앱 완전 재빌드
+cd android && ./gradlew clean && cd ..
+
+# Metro 캐시 클리어하고 시작
+npm start -- --reset-cache
+
+# 새 터미널에서 앱 실행
+npm run android
+```
+
+**5단계: 기기에서 권한 수동 확인**
+
+앱 설치 후에도 카메라가 작동하지 않으면:
+
+1. 기기 **설정** → **앱** → **당뇨 케어** 선택
+2. **권한** 메뉴 선택
+3. **카메라** 권한이 **허용**으로 설정되어 있는지 확인
+4. 권한이 거부되어 있다면 **허용**으로 변경
+5. 앱을 완전히 종료하고 다시 시작
+
+**6단계: 앱 재설치 (최후의 수단)**
+```bash
+# 앱 완전히 삭제
+adb uninstall com.diabetescareapp
+
+# 재설치
+cd mobile-app
+npm run android
+```
+
+**디버그 로그 확인:**
+```bash
+# Android 로그 실시간 확인
+adb logcat | grep -i camera
+
+# 또는
+npx react-native log-android
+```
+
+에러 로그에서 다음과 같은 메시지를 찾아보세요:
+- `Camera permission denied`
+- `No camera device found`
+- `Camera is not available`
+
+**iOS의 경우:**
+
+Info.plist 파일에 다음 추가:
+```xml
 <key>NSCameraUsageDescription</key>
 <string>음식을 촬영하여 분석하기 위해 카메라 권한이 필요합니다.</string>
 ```
