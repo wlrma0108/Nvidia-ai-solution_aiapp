@@ -13,6 +13,7 @@
 - [프로젝트 구조](#프로젝트-구조)
 - [환경 설정 가이드](#환경-설정-가이드)
 - [설치 및 실행](#설치-및-실행)
+- [VSCode에서 개발하기](#vscode에서-개발하기)
 - [테스트 방법](#테스트-방법)
 - [사용 방법](#사용-방법)
 - [API 문서](#api-문서)
@@ -360,6 +361,188 @@ npx react-native run-ios
 **Metro 번들러 시작 (별도 터미널):**
 ```bash
 npm start
+```
+
+## 💻 VSCode에서 개발하기
+
+프로젝트에는 VSCode 통합 개발 환경을 위한 설정이 포함되어 있습니다. VSCode를 사용하면 버튼 클릭만으로 서버 실행, 앱 빌드, 디버깅 등을 수행할 수 있습니다.
+
+### VSCode 설정 파일
+
+프로젝트 루트의 `.vscode/` 폴더에 다음 설정이 포함되어 있습니다:
+
+- **`tasks.json`**: 자주 사용하는 작업들을 Task로 정의
+- **`launch.json`**: 디버깅 설정
+
+### 📋 사용 가능한 Tasks
+
+VSCode에서 `Ctrl+Shift+P` (macOS: `Cmd+Shift+P`)를 누르고 `Tasks: Run Task`를 선택하면 다음 작업들을 실행할 수 있습니다:
+
+#### 백엔드 관련
+
+| Task 이름 | 설명 | 단축키 |
+|-----------|------|--------|
+| **FastAPI: 서버 시작 (개발)** | uvicorn으로 개발 서버 시작 (hot reload) | - |
+| **FastAPI: 서버 시작 (Docker)** | Docker Compose로 서버 시작 | - |
+| **Docker: 이미지 빌드** | Docker 이미지 빌드 | - |
+| **Docker: 컨테이너 실행** | 빌드된 이미지로 컨테이너 실행 | - |
+| **카메라 Detection 테스트** | main.py 실행 (로컬 카메라로 테스트) | - |
+
+#### 프론트엔드 (React Native) 관련
+
+| Task 이름 | 설명 | 단축키 |
+|-----------|------|--------|
+| **React Native: Metro 번들러 시작** | Metro 개발 서버 시작 | - |
+| **React Native: Android 앱 실행** | Android 앱 빌드 및 실행 | - |
+| **React Native: iOS 앱 실행** | iOS 앱 빌드 및 실행 (macOS만) | - |
+| **React Native: 캐시 클리어 후 시작** | Metro 캐시를 지우고 재시작 | - |
+| **Android: Clean Build** | Gradle 캐시 클리어 후 재빌드 | - |
+
+#### 아이콘 설정
+
+| Task 이름 | 설명 |
+|-----------|------|
+| **아이콘 설정 (Linux/macOS)** | setup-icons.sh 실행 |
+| **아이콘 설정 (Windows)** | setup-icons.bat 실행 |
+
+#### 의존성 설치
+
+| Task 이름 | 설명 |
+|-----------|------|
+| **의존성 설치: Python** | requirements.txt 설치 |
+| **의존성 설치: React Native** | npm install 실행 |
+| **의존성 설치: 전체** | Python + React Native 한번에 설치 |
+
+### 🐛 디버깅 설정
+
+VSCode의 디버깅 기능을 사용하려면 `F5` 키를 누르거나 왼쪽 사이드바의 디버그 아이콘을 클릭합니다.
+
+#### 사용 가능한 디버그 설정
+
+| 설정 이름 | 설명 | 사용 시점 |
+|-----------|------|-----------|
+| **FastAPI: 디버그 모드** | FastAPI 서버를 디버그 모드로 실행 | API 개발 및 버그 수정 시 |
+| **카메라 Detection: 디버그** | main.py를 디버그 모드로 실행 | 카메라 detection 로직 디버깅 |
+| **Python: 현재 파일 디버그** | 현재 열려있는 Python 파일 실행 | 개별 스크립트 테스트 |
+| **OCR Detection 테스트** | DrugDetection.py 디버그 실행 | OCR 기능 테스트 |
+
+#### 디버깅 기본 사용법
+
+1. **중단점 설정**: 코드 라인 번호 왼쪽을 클릭하여 빨간 점 표시
+2. **디버깅 시작**: `F5` 또는 상단의 디버그 설정 선택 후 시작
+3. **변수 확인**: 왼쪽 사이드바에서 현재 변수 값 확인
+4. **단계별 실행**:
+   - `F10`: Step Over (다음 줄로)
+   - `F11`: Step Into (함수 내부로)
+   - `Shift+F11`: Step Out (함수 밖으로)
+   - `F5`: Continue (다음 중단점까지)
+
+### 🚀 빠른 시작 가이드
+
+#### 1. 백엔드 개발 시작하기
+
+```
+1. Ctrl+Shift+P → "Tasks: Run Task"
+2. "FastAPI: 서버 시작 (개발)" 선택
+3. 서버가 시작되면 http://localhost:8000/docs 접속
+```
+
+또는 디버그 모드로:
+```
+1. F5 누르기
+2. "FastAPI: 디버그 모드" 선택
+3. 중단점 설정 후 API 호출하여 디버깅
+```
+
+#### 2. React Native 앱 개발하기
+
+**Android:**
+```
+1. Ctrl+Shift+P → "Tasks: Run Task"
+2. "React Native: Android 앱 실행" 선택
+   (Metro 번들러도 자동으로 시작됩니다)
+3. 에뮬레이터 또는 실제 기기에서 앱 확인
+```
+
+**iOS (macOS만):**
+```
+1. Ctrl+Shift+P → "Tasks: Run Task"
+2. "React Native: iOS 앱 실행" 선택
+3. 시뮬레이터에서 앱 확인
+```
+
+#### 3. 아이콘 문제 해결
+
+```
+1. Ctrl+Shift+P → "Tasks: Run Task"
+2. "아이콘 설정 (Linux/macOS)" 또는 "아이콘 설정 (Windows)" 선택
+3. 스크립트가 자동으로 아이콘 폰트 링크
+4. 앱 재빌드
+```
+
+#### 4. 카메라 Detection 로컬 테스트
+
+```
+1. 웹캠 연결 확인
+2. Ctrl+Shift+P → "Tasks: Run Task"
+3. "카메라 Detection 테스트" 선택
+4. 카메라 화면에서 과일/음료 인식 테스트
+```
+
+### 🔧 Task 단축키 설정하기
+
+자주 사용하는 Task에 단축키를 지정할 수 있습니다:
+
+1. `Ctrl+Shift+P` → "Preferences: Open Keyboard Shortcuts (JSON)" 선택
+2. 다음과 같이 단축키 추가:
+
+```json
+[
+  {
+    "key": "ctrl+shift+b",
+    "command": "workbench.action.tasks.runTask",
+    "args": "FastAPI: 서버 시작 (개발)"
+  },
+  {
+    "key": "ctrl+shift+r",
+    "command": "workbench.action.tasks.runTask",
+    "args": "React Native: Android 앱 실행"
+  }
+]
+```
+
+### 💡 VSCode 확장 프로그램 추천
+
+다음 확장 프로그램을 설치하면 개발이 더 편리합니다:
+
+#### 필수
+- **Python** (ms-python.python) - Python 개발 지원
+- **Pylance** (ms-python.vscode-pylance) - Python 인텔리센스
+- **React Native Tools** (msjsdiag.vscode-react-native) - React Native 디버깅
+- **ES7+ React/Redux/React-Native snippets** - React 코드 스니펫
+
+#### 권장
+- **Docker** (ms-azuretools.vscode-docker) - Docker 관리
+- **REST Client** (humao.rest-client) - API 테스트
+- **GitLens** (eamodio.gitlens) - Git 기능 강화
+- **Error Lens** (usernamehw.errorlens) - 인라인 에러 표시
+
+### 📝 VSCode 터미널 활용
+
+VSCode 내장 터미널(`Ctrl+\``)에서도 모든 명령어를 실행할 수 있습니다:
+
+```bash
+# 백엔드 서버 시작
+cd backend && python app.py
+
+# React Native 앱 실행
+cd mobile-app && npm run android
+
+# 아이콘 설정
+cd mobile-app && ./setup-icons.sh
+
+# 카메라 테스트
+python main.py
 ```
 
 ## 🧪 테스트 방법

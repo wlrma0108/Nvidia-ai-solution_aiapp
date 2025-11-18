@@ -1,0 +1,213 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "FastAPI: 서버 시작 (개발)",
+      "type": "shell",
+      "command": "python",
+      "args": ["-m", "uvicorn", "app:app", "--reload", "--host", "0.0.0.0", "--port", "8000"],
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "focus": true
+      },
+      "group": {
+        "kind": "build",
+        "isDefault": false
+      },
+      "runOptions": {
+        "instanceLimit": 1
+      }
+    },
+    {
+      "label": "FastAPI: 서버 시작 (Docker)",
+      "type": "shell",
+      "command": "docker-compose up --build",
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "focus": true
+      },
+      "group": "build"
+    },
+    {
+      "label": "React Native: Metro 번들러 시작",
+      "type": "shell",
+      "command": "npm",
+      "args": ["start"],
+      "options": {
+        "cwd": "${workspaceFolder}/mobile-app"
+      },
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "focus": false
+      },
+      "isBackground": true
+    },
+    {
+      "label": "React Native: Android 앱 실행",
+      "type": "shell",
+      "command": "npm",
+      "args": ["run", "android"],
+      "options": {
+        "cwd": "${workspaceFolder}/mobile-app"
+      },
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "focus": true
+      },
+      "group": "build",
+      "dependsOn": ["React Native: Metro 번들러 시작"]
+    },
+    {
+      "label": "React Native: iOS 앱 실행",
+      "type": "shell",
+      "command": "npm",
+      "args": ["run", "ios"],
+      "options": {
+        "cwd": "${workspaceFolder}/mobile-app"
+      },
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "focus": true
+      },
+      "group": "build",
+      "dependsOn": ["React Native: Metro 번들러 시작"]
+    },
+    {
+      "label": "카메라 Detection 테스트",
+      "type": "shell",
+      "command": "python",
+      "args": ["main.py"],
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "focus": true
+      },
+      "group": "test"
+    },
+    {
+      "label": "의존성 설치: Python",
+      "type": "shell",
+      "command": "pip",
+      "args": ["install", "-r", "requirements.txt"],
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "의존성 설치: React Native",
+      "type": "shell",
+      "command": "npm",
+      "args": ["install"],
+      "options": {
+        "cwd": "${workspaceFolder}/mobile-app"
+      },
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "의존성 설치: 전체",
+      "dependsOn": [
+        "의존성 설치: Python",
+        "의존성 설치: React Native"
+      ],
+      "problemMatcher": []
+    },
+    {
+      "label": "Docker: 이미지 빌드",
+      "type": "shell",
+      "command": "docker",
+      "args": ["build", "-t", "diabetes-care-api", "."],
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      }
+    },
+    {
+      "label": "Docker: 컨테이너 실행",
+      "type": "shell",
+      "command": "docker",
+      "args": ["run", "-p", "8000:8000", "diabetes-care-api"],
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "focus": true
+      }
+    },
+    {
+      "label": "아이콘 설정 (Linux/macOS)",
+      "type": "shell",
+      "command": "./setup-icons.sh",
+      "options": {
+        "cwd": "${workspaceFolder}/mobile-app"
+      },
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "아이콘 설정 (Windows)",
+      "type": "shell",
+      "command": "setup-icons.bat",
+      "options": {
+        "cwd": "${workspaceFolder}/mobile-app"
+      },
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "windows": {
+        "command": "setup-icons.bat"
+      }
+    },
+    {
+      "label": "React Native: 캐시 클리어 후 시작",
+      "type": "shell",
+      "command": "npm",
+      "args": ["start", "--", "--reset-cache"],
+      "options": {
+        "cwd": "${workspaceFolder}/mobile-app"
+      },
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "focus": true
+      }
+    },
+    {
+      "label": "Android: Clean Build",
+      "type": "shell",
+      "command": "cd android && ./gradlew clean && cd .. && npm run android",
+      "options": {
+        "cwd": "${workspaceFolder}/mobile-app"
+      },
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "focus": true
+      }
+    }
+  ]
+}
