@@ -123,7 +123,7 @@ const CameraScreen = ({navigation}) => {
             ]
           );
         }
-      }, 60000); // 60초 타임아웃
+      }, 60000);
 
       const photo = await camera.current.takePhoto({
         flash: 'off',

@@ -27,7 +27,6 @@ def run_camera():
             print("[ERROR] 프레임 캡처 실패. 종료.")
             break
 
-        # 거울 모드
         frame = cv2.flip(frame, 1)
         frame_idx += 1
 
@@ -40,7 +39,6 @@ def run_camera():
             lines.append(f"[CONFIRMED] {FOOD_NAMES[global_cls]}  ema={cema:.2f}")
             lines.append(f"[RISK] {RISK_MESSAGES.get(global_cls, '해당 음식/음료는 당뇨 관리에 주의가 필요합니다.')}")
 
-            # OCR 시도
             ocr_lines = ocr_text_from_crop(frame, bbox)
             if ocr_lines:
                 lines.append("[OCR TEXT (상위 일부)]")
@@ -49,7 +47,6 @@ def run_camera():
             else:
                 lines.append("[OCR] 포장/텍스트를 거의 인식하지 못했습니다.")
 
-            # 음료라면 영양 성분 분석
             if global_cls == 2:
                 nutr_msg = analyze_drink_nutrition(ocr_lines)
                 if nutr_msg:
@@ -57,7 +54,6 @@ def run_camera():
                     for row in nutr_msg.split("\n"):
                         lines.append(f" - {row}")
 
-            # 칼로리 러프 추정
             if USE_CALORIE:
                 if cm_per_px is None:
                     cm_per_px = find_aruco_scale_cm_per_px(frame_vis)

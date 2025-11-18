@@ -15,7 +15,6 @@ def _run_paddle_ocr(image_bgr):
     if image_bgr is None or image_bgr.size == 0:
         return []
 
-    # 짧은 변이 최소 256px 되도록 스케일업 (텍스트 인식률 강화)
     h, w = image_bgr.shape[:2]
     TARGET_SHORT = 256
     min_side = min(h, w)
@@ -25,11 +24,9 @@ def _run_paddle_ocr(image_bgr):
         new_h = int(h * scale)
         image_bgr = cv2.resize(image_bgr, (new_w, new_h), interpolation=cv2.INTER_CUBIC)
 
-    # 1차 시도: numpy 배열 그대로 predict
     try:
         result = get_ocr().predict(image_bgr)
     except Exception:
-        # 2차 시도: 임시 파일로 저장 후 경로 기반 predict
         fd, tmp_path = tempfile.mkstemp(suffix=".png")
         os.close(fd)
         try:
@@ -64,7 +61,7 @@ def ocr_text_from_crop(frame_bgr, bbox):
     - 텍스트 라인을 가장 많이 뽑은 버전을 최종 결과로 선택
     """
     try:
-        get_ocr()  # Check if OCR can be initialized
+        get_ocr()
     except Exception:
         return []
 
@@ -74,7 +71,6 @@ def ocr_text_from_crop(frame_bgr, bbox):
     best_lines = []
     best_len   = 0
 
-    # 패딩 3단계: 좁게/보통/넓게
     for pad in (20, 60, 120):
         xx1 = max(0, x1 - pad)
         yy1 = max(0, y1 - pad)
@@ -88,10 +84,8 @@ def ocr_text_from_crop(frame_bgr, bbox):
         if crop.size == 0:
             continue
 
-        # 프레임이 거울 모드라 crop만 다시 좌우반전해서 텍스트 방향 복원
         crop = cv2.flip(crop, 1)
 
-        # OCR 수행
         lines = _run_paddle_ocr(crop)
         lines = [l for l in lines if l.strip()]
 
@@ -99,7 +93,6 @@ def ocr_text_from_crop(frame_bgr, bbox):
             best_len   = len(lines)
             best_lines = lines
 
-        # 어느 정도 읽혔으면(3줄 이상) 더 넓은 패딩은 굳이 안 봐도 됨
         if best_len >= 3:
             break
 
@@ -184,7 +177,6 @@ def analyze_drink_nutrition(lines):
 
     msgs = []
 
-    # 1) 타입 기반 멘트
     msgs.append("[음료 종류 추정]")
     if drink_type == "coffee_sweet":
         msgs.append(f" - 라떼/모카/카라멜 계열 커피로 보입니다. (키워드: {label_word})")
@@ -209,7 +201,6 @@ def analyze_drink_nutrition(lines):
         msgs.append(" - '제로/무가당/무설탕/sugar free/0kcal' 표기가 있습니다. → 당은 적을 가능성이 높습니다.")
     msgs.append("")
 
-    # 2) 숫자 기반 분석
     msgs.append("[영양/당뇨 위험 평가]")
 
     used_numeric = False
@@ -241,7 +232,6 @@ def analyze_drink_nutrition(lines):
         else:
             msgs.append(" - 트랜스지방 0 g 표기가 있다면 지방 측면에서는 비교적 안심해도 됩니다.")
 
-    # 3) 숫자 못 뽑았을 때 타입 기반 멘트
     if not used_numeric:
         if drink_type in ["soda", "juice", "coffee_sweet", "energy"]:
             if is_zero:

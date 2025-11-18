@@ -28,8 +28,8 @@ from models import get_fruit_model, get_coco_model
 from tracking import MultiObjectTracker, iou_box, center_of
 
 tracker = MultiObjectTracker()
-confirmed = None   # (global_cls, bbox, conf_ema)
-candidate = None   # {'tid','cls','frames','agree','last_bbox','last_conf'}
+confirmed = None
+candidate = None
 cooldown_until = 0
 
 def begin_candidate(tid, cls, bbox, conf_ema):
@@ -58,7 +58,6 @@ def detect_step(frame_bgr, frame_idx):
     H, W = frame_bgr.shape[:2]
     detections = []
 
-    # 1) 과일 YOLO 감지
     fruit_results = get_fruit_model().predict(
         source=frame_bgr,
         conf=CONF_THRES_FRUIT,
@@ -85,7 +84,6 @@ def detect_step(frame_bgr, frame_idx):
             conf = float(b.conf)
             detections.append((x1,y1,x2,y2, gcls, conf))
 
-    # 2) COCO YOLO에서 음료 용기만 감지 → Drink(2)
     drink_results = get_coco_model().predict(
         source=frame_bgr,
         conf=CONF_THRES_DRINK,
@@ -99,7 +97,7 @@ def detect_step(frame_bgr, frame_idx):
             raw_cls = int(b.cls.item()) if hasattr(b.cls, "item") else int(b.cls)
             if raw_cls not in COCO_DRINK_CLASS_IDS:
                 continue
-            gcls = 2  # Drink
+            gcls = 2
             x1,y1,x2,y2 = [int(v) for v in b.xyxy[0].tolist()]
             w,h = x2-x1, y2-y1
             if h <= 0 or w <= 0:
@@ -114,7 +112,6 @@ def detect_step(frame_bgr, frame_idx):
             conf = float(b.conf)
             detections.append((x1,y1,x2,y2, gcls, conf))
 
-    # 3) 트래커 업데이트
     tracked = tracker.update(detections)
 
     frame_draw = frame_bgr.copy()
@@ -159,7 +156,6 @@ def detect_step(frame_bgr, frame_idx):
                     passed_majority = (candidate['agree'] >= VERIFY_KEEP_MIN)
                     ok_final = passed_majority
 
-                    # 과일만 재검증. 음료(2)는 재검증 생략.
                     if REVERIFY_CROP and ok_final and gcls in (0, 1):
                         cx1,cy1,cx2,cy2 = candidate['last_bbox']
                         px1 = max(0, cx1-REVERIFY_PAD); py1 = max(0, cy1-REVERIFY_PAD)
