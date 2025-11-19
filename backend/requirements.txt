@@ -16,3 +16,11 @@ torchvision==0.15.2
 shapely==2.0.2
 pyyaml==6.0.1
 requests==2.31.0
+
+# Auth and Database
+sqlalchemy==2.0.23
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+python-dotenv==1.0.0
+pydantic[email]==2.5.0
+alembic==1.13.0

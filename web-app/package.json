@@ -1,13 +1,13 @@
 {
-  "name": "diabetes-care-web",
-  "version": "1.0.0",
+  "name": "diacare-web",
+  "version": "2.0.0",
   "type": "module",
-  "description": "당뇨병 케어 음식 분석 웹 애플리케이션",
+  "description": "Diacare - 당뇨병 환자용 음식/약 섭취 관리 웹 서비스",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "tsc && vite build",
     "preview": "vite preview",
-    "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0"
+    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0"
   },
   "dependencies": {
     "react": "^18.2.0",
@@ -19,6 +19,7 @@
     "@types/react": "^18.2.37",
     "@types/react-dom": "^18.2.15",
     "@vitejs/plugin-react": "^4.2.0",
+    "typescript": "^5.3.3",
     "eslint": "^8.53.0",
     "eslint-plugin-react": "^7.33.2",
     "eslint-plugin-react-hooks": "^4.6.0",

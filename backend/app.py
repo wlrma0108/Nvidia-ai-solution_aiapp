@@ -15,11 +15,18 @@ from detection import detect_step
 from ocr_utils import ocr_text_from_crop, analyze_drink_nutrition
 from calorie import find_aruco_scale_cm_per_px, estimate_calories
 
+from routers import auth, food, drug, user
+
 app = FastAPI(
-    title="Diabetes Care Food Detection API",
-    description="당뇨병 케어 음식 분석 API",
-    version="1.0.0"
+    title="Diacare - Diabetes Care API",
+    description="당뇨병 환자용 음식/약 섭취 관리 서비스 API",
+    version="2.0.0"
 )
+
+app.include_router(auth.router)
+app.include_router(food.router)
+app.include_router(drug.router)
+app.include_router(user.router)
 
 app.add_middleware(
     CORSMiddleware,
@@ -34,8 +41,15 @@ app.add_middleware(
 async def root():
     return {
         "status": "ok",
-        "message": "Diabetes Care Food Detection API is running",
-        "version": "1.0.0"
+        "message": "Diacare API is running",
+        "version": "2.0.0",
+        "endpoints": {
+            "auth": "/auth (register, login, me)",
+            "food": "/api/food/detect",
+            "drug": "/api/drug/detect",
+            "user": "/api/user (logs, stats)",
+            "legacy": "/analyze, /detect-live (no auth required)"
+        }
     }
 
 
