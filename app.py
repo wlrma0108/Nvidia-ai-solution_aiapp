@@ -22,11 +22,9 @@ from config import (
 app = Flask(__name__)
 
 def detect_and_analyze(image_np):
-    """이미지에서 음식을 감지하고 칼로리를 계산"""
     h, w = image_np.shape[:2]
     results = []
 
-    # Fruit 모델로 감지
     fruit_res = fruit_model.predict(image_np, conf=CONF_THRES_FRUIT, verbose=False)
     if len(fruit_res) > 0 and fruit_res[0].boxes is not None:
         boxes = fruit_res[0].boxes
@@ -35,12 +33,10 @@ def detect_and_analyze(image_np):
             conf = float(boxes.conf[i].item())
             x1, y1, x2, y2 = boxes.xyxy[i].cpu().numpy()
 
-            # 전역 클래스로 매핑
             global_cls = FRUIT_CLASS_MAP.get(cls_id)
             if global_cls is None:
                 continue
 
-            # 필터링
             box_w = x2 - x1
             box_h = y2 - y1
             area_frac = (box_w * box_h) / (w * h)
@@ -54,7 +50,6 @@ def detect_and_analyze(image_np):
             if area_frac < min_area:
                 continue
 
-            # 칼로리 계산 (간단 버전)
             grams = BASE_GRAMS.get(global_cls, 100.0)
             kcal_per_100 = KCAL_PER100.get(global_cls, 50.0)
             kcal = (grams / 100.0) * kcal_per_100
@@ -69,7 +64,6 @@ def detect_and_analyze(image_np):
                 'risk_message': RISK_MESSAGES.get(global_cls, '주의가 필요합니다.'),
             })
 
-    # COCO 모델로 음료 감지
     coco_res = coco_model.predict(image_np, conf=CONF_THRES_DRINK, verbose=False)
     if len(coco_res) > 0 and coco_res[0].boxes is not None:
         boxes = coco_res[0].boxes
@@ -81,9 +75,8 @@ def detect_and_analyze(image_np):
             conf = float(boxes.conf[i].item())
             x1, y1, x2, y2 = boxes.xyxy[i].cpu().numpy()
 
-            global_cls = 2  # Drink
+            global_cls = 2
 
-            # 필터링
             box_w = x2 - x1
             box_h = y2 - y1
             area_frac = (box_w * box_h) / (w * h)
@@ -97,7 +90,6 @@ def detect_and_analyze(image_np):
             if area_frac < min_area:
                 continue
 
-            # 칼로리 계산
             grams = BASE_GRAMS.get(global_cls, 250.0)
             kcal_per_100 = KCAL_PER100.get(global_cls, 45.0)
             kcal = (grams / 100.0) * kcal_per_100
@@ -121,25 +113,21 @@ def index():
 @app.route('/detect', methods=['POST'])
 def detect():
     try:
-        # Base64 이미지 받기
         data = request.json
         image_data = data.get('image', '')
 
         if not image_data:
             return jsonify({'error': '이미지가 없습니다.'}), 400
 
-        # Base64 디코딩
         image_data = image_data.split(',')[1] if ',' in image_data else image_data
         image_bytes = base64.b64decode(image_data)
 
-        # numpy 배열로 변환
         nparr = np.frombuffer(image_bytes, np.uint8)
         image_np = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
 
         if image_np is None:
             return jsonify({'error': '이미지 디코딩 실패'}), 400
 
-        # 감지 및 분석
         results = detect_and_analyze(image_np)
 
         return jsonify({

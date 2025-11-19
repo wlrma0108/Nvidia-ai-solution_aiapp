@@ -25,13 +25,11 @@ class KalmanFilter2D:
         self.P = self.F @ self.P @ self.F.T + self.Q
 
     def update(self, z):
-        # z: (2,1) [cx, cy]
-        y = z - (self.H @ self.x)                     # (2,1)
-        S = self.H @ self.P @ self.H.T + self.R       # (2,2)
-        K = self.P @ self.H.T @ np.linalg.inv(S)      # (4,2)
-        self.x = self.x + K @ y                       # (4,1)
-        self.P = (self.I - K @ self.H) @ self.P       # (4,4)
-
+        y = z - (self.H @ self.x)
+        S = self.H @ self.P @ self.H.T + self.R
+        K = self.P @ self.H.T @ np.linalg.inv(S)
+        self.x = self.x + K @ y
+        self.P = (self.I - K @ self.H) @ self.P
 
 class Track:
     def __init__(self, track_id, bbox, global_cls, conf):
@@ -79,7 +77,6 @@ class Track:
     def get_state(self):
         x1,y1,x2,y2 = self.get_bbox()
         return x1,y1,x2,y2, self.last_global_cls, float(self.conf_ema), self.track_id, self.hits, self.last_bbox
-
 
 def iou_box(b1,b2):
     x1=max(b1[0],b2[0]); y1=max(b1[1],b2[1])

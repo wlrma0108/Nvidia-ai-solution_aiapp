@@ -1,11 +1,9 @@
-"""웹앱 기본 기능 테스트"""
 import sys
 
 print("=" * 60)
 print("웹앱 의존성 테스트")
 print("=" * 60)
 
-# 1. Flask 테스트
 try:
     import flask
     print("✓ Flask 설치됨:", flask.__version__)
@@ -13,7 +11,6 @@ except ImportError as e:
     print("✗ Flask 없음:", e)
     sys.exit(1)
 
-# 2. Pillow 테스트
 try:
     from PIL import Image
     print("✓ Pillow 설치됨")
@@ -21,7 +18,6 @@ except ImportError as e:
     print("✗ Pillow 없음:", e)
     sys.exit(1)
 
-# 3. OpenCV 테스트
 try:
     import cv2
     print("✓ OpenCV 설치됨:", cv2.__version__)
@@ -29,7 +25,6 @@ except ImportError as e:
     print("✗ OpenCV 없음:", e)
     sys.exit(1)
 
-# 4. NumPy 테스트
 try:
     import numpy as np
     print("✓ NumPy 설치됨:", np.__version__)
@@ -37,7 +32,6 @@ except ImportError as e:
     print("✗ NumPy 없음:", e)
     sys.exit(1)
 
-# 5. Config 테스트
 try:
     from config import FOOD_NAMES, FRUIT_MODEL_PATH
     print("✓ Config 로드됨")
@@ -52,7 +46,6 @@ except Exception as e:
     print("✗ Config 로드 실패:", e)
     sys.exit(1)
 
-# 6. 모델 로딩 테스트 (시간이 걸릴 수 있음)
 print("\n모델 로딩 테스트 (시간이 걸릴 수 있습니다)...")
 try:
     print("  - YOLO 모델 로딩 중...")
@@ -68,7 +61,6 @@ except Exception as e:
     traceback.print_exc()
     sys.exit(1)
 
-# 7. Flask 앱 로딩 테스트
 try:
     from app import app
     print("✓ Flask 앱 로딩 완료")

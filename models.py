@@ -15,7 +15,7 @@ coco_model  = YOLO(COCO_MODEL_PATH)
 print("[INFO] Init PaddleOCR (korean)")
 ocr = PaddleOCR(
     lang="korean",
-    use_textline_orientation=True,       # 글자 방향 보정
+    use_textline_orientation=True,
     use_doc_orientation_classify=False,
     use_doc_unwarping=False,
 )
