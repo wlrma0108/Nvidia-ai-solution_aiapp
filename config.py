@@ -5,13 +5,16 @@ import cv2
 IS_DOCKER = os.path.exists('/.dockerenv')
 IS_WINDOWS = sys.platform == 'win32'
 
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
 if IS_DOCKER or not IS_WINDOWS:
     PADDLE_HOME = os.environ.get("PADDLE_HOME", "/app/.paddle_cache")
     os.environ["PADDLE_HOME"] = PADDLE_HOME
     os.environ.setdefault("PADDLE_PDX_MODEL_SOURCE", "HF")
     os.makedirs(PADDLE_HOME, exist_ok=True)
 
-    FRUIT_MODEL_PATH = os.environ.get("FRUIT_MODEL_PATH", "/app/best.pt")
+    default_model_path = "/app/best.pt" if IS_DOCKER else os.path.join(BASE_DIR, "best.pt")
+    FRUIT_MODEL_PATH = os.environ.get("FRUIT_MODEL_PATH", default_model_path)
 else:
     PADDLE_HOME = r"C:\paddle_ocr_home"
     os.environ["PADDLE_HOME"] = PADDLE_HOME
@@ -22,7 +25,7 @@ else:
     os.environ.setdefault("PADDLE_PDX_MODEL_SOURCE", "HF")
     os.makedirs(PADDLE_HOME, exist_ok=True)
 
-    FRUIT_MODEL_PATH = os.environ.get("FRUIT_MODEL_PATH", "best.pt")
+    FRUIT_MODEL_PATH = os.environ.get("FRUIT_MODEL_PATH", os.path.join(BASE_DIR, "best.pt"))
 
 COCO_MODEL_PATH = "yolov8n.pt"
 

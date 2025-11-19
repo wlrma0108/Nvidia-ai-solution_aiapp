@@ -63,6 +63,49 @@ async def analyze_food(file: UploadFile = File(...)) -> Dict[str, Any]:
         raise HTTPException(status_code=500, detail=f"분석 중 오류 발생: {str(e)}")
 
 
+@app.post("/detect-live")
+async def detect_live(file: UploadFile = File(...)) -> Dict[str, Any]:
+    try:
+        contents = await file.read()
+        nparr = np.frombuffer(contents, np.uint8)
+        frame = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+
+        if frame is None:
+            raise HTTPException(status_code=400, detail="Invalid image file")
+
+        _, conf_state = detect_step(frame, 100)
+
+        if conf_state is None:
+            return JSONResponse(content={
+                "detected": False,
+                "message": "음식이나 음료가 감지되지 않았습니다."
+            })
+
+        global_cls, bbox, cema = conf_state
+
+        risk_level = "안전"
+        if global_cls in [0, 1]:
+            risk_level = "주의"
+        elif global_cls == 2:
+            risk_level = "위험"
+
+        result = {
+            "detected": True,
+            "food_type": FOOD_NAMES[global_cls],
+            "food_class": int(global_cls),
+            "confidence": float(cema),
+            "risk_level": risk_level,
+            "message": RISK_MESSAGES.get(global_cls, "")
+        }
+
+        return JSONResponse(content=result)
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"실시간 감지 중 오류 발생: {str(e)}")
+
+
 def analyze_image(frame: np.ndarray) -> Dict[str, Any]:
     _, conf_state = detect_step(frame, 100)
 

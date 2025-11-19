@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { analyzeFoodImage } from '../services/api'
+import { analyzeFoodImage, detectLive } from '../services/api'
 import '../styles/CameraPage.css'
 
 function CameraPage() {
@@ -11,13 +11,25 @@ function CameraPage() {
   const [error, setError] = useState(null)
   const [stream, setStream] = useState(null)
   const [facingMode, setFacingMode] = useState('environment')
+  const [liveDetection, setLiveDetection] = useState(null)
+  const liveDetectionIntervalRef = useRef(null)
 
   useEffect(() => {
     startCamera()
     return () => {
       stopCamera()
+      stopLiveDetection()
     }
   }, [facingMode])
+
+  useEffect(() => {
+    if (stream && !isAnalyzing) {
+      startLiveDetection()
+    } else {
+      stopLiveDetection()
+    }
+    return () => stopLiveDetection()
+  }, [stream, isAnalyzing])
 
   const startCamera = async () => {
     try {
@@ -55,6 +67,46 @@ function CameraPage() {
 
   const switchCamera = () => {
     setFacingMode(prev => prev === 'user' ? 'environment' : 'user')
+  }
+
+  const startLiveDetection = () => {
+    stopLiveDetection()
+
+    liveDetectionIntervalRef.current = setInterval(async () => {
+      if (!videoRef.current || !canvasRef.current || isAnalyzing) return
+
+      try {
+        const video = videoRef.current
+        const canvas = canvasRef.current
+
+        canvas.width = video.videoWidth
+        canvas.height = video.videoHeight
+
+        const ctx = canvas.getContext('2d')
+        ctx.drawImage(video, 0, 0)
+
+        canvas.toBlob(async (blob) => {
+          if (blob) {
+            const result = await detectLive(blob)
+            if (result.detected) {
+              setLiveDetection(result)
+            } else {
+              setLiveDetection(null)
+            }
+          }
+        }, 'image/jpeg', 0.7)
+      } catch (error) {
+        console.error('Live detection error:', error)
+      }
+    }, 1000)
+  }
+
+  const stopLiveDetection = () => {
+    if (liveDetectionIntervalRef.current) {
+      clearInterval(liveDetectionIntervalRef.current)
+      liveDetectionIntervalRef.current = null
+    }
+    setLiveDetection(null)
   }
 
   const capturePhoto = async () => {
@@ -142,8 +194,23 @@ function CameraPage() {
 
           <div className="camera-overlay">
             <div className="guide-text">
-              <p>음식이나 음료를 화면 중앙에 맞춰주세요</p>
-              <p className="guide-subtext">음료는 영양 성분표가 보이도록 촬영하세요</p>
+              {liveDetection && liveDetection.detected ? (
+                <>
+                  <div className="live-detection-badge">
+                    <span className="detection-icon">✓</span>
+                    <span className="detection-text">{liveDetection.food_type} 감지됨</span>
+                  </div>
+                  <p className="live-detection-message">
+                    {liveDetection.message}
+                  </p>
+                  <p className="guide-subtext">촬영 버튼을 눌러 자세히 분석하세요</p>
+                </>
+              ) : (
+                <>
+                  <p>음식이나 음료를 화면 중앙에 맞춰주세요</p>
+                  <p className="guide-subtext">음료는 영양 성분표가 보이도록 촬영하세요</p>
+                </>
+              )}
             </div>
 
             <div className="focus-frame">

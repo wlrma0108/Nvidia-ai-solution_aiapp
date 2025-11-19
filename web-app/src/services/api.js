@@ -26,6 +26,24 @@ export const analyzeFoodImage = async (imageBlob) => {
   }
 };
 
+export const detectLive = async (imageBlob) => {
+  try {
+    const formData = new FormData();
+    formData.append('file', imageBlob, 'frame.jpg');
+
+    const response = await api.post('/detect-live', formData, {
+      timeout: 3000,
+    });
+    return response.data;
+  } catch (error) {
+    if (error.code === 'ECONNABORTED') {
+      return { detected: false, message: 'Timeout' };
+    }
+    console.error('Live detection error:', error);
+    return { detected: false, message: 'Error' };
+  }
+};
+
 export const checkHealth = async () => {
   try {
     const response = await api.get('/health');
