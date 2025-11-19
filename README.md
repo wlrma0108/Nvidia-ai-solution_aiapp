@@ -2,6 +2,14 @@
 
 NVIDIA AI 기술을 활용한 실시간 음식 및 음료 감지, OCR 기반 영양 분석, 칼로리 추정 시스템입니다. 당뇨 환자의 식단 관리를 돕기 위해 개발되었습니다.
 
+## 🌐 웹앱 버전 출시!
+
+이제 **웹 브라우저**에서 바로 사용할 수 있습니다! 복잡한 설정 없이 간단하게:
+1. `python app.py` 실행
+2. 브라우저에서 `http://localhost:5000` 접속
+3. 카메라로 음식 촬영 후 버튼 클릭
+4. AI가 자동으로 칼로리 분석!
+
 ## 주요 기능
 
 ### 1. 실시간 음식/음료 감지
@@ -21,24 +29,31 @@ NVIDIA AI 기술을 활용한 실시간 음식 및 음료 감지, OCR 기반 영
 
 ## 기술 스택
 
+- **웹 프레임워크**: Flask 3.0.0
 - **객체 감지**: YOLOv8 (Ultralytics)
 - **OCR**: PaddleOCR 2.7.0.3
 - **컴퓨터 비전**: OpenCV 4.8.0
 - **딥러닝**: PyTorch, PaddlePaddle
 - **객체 추적**: Kalman Filter
+- **프론트엔드**: HTML5, CSS3, JavaScript (Vanilla)
 
 ## 프로젝트 구조
 
 ```
 Nvidia_project/
+├─ app.py             # 🌐 Flask 웹 서버 (웹앱 메인)
+├─ templates/         # 🎨 HTML 템플릿
+│  └─ index.html      # 웹 UI
+├─ static/            # 정적 파일 (CSS, JS)
 ├─ config.py          # 환경변수 + 공통 상수/파라미터
 ├─ models.py          # YOLO, PaddleOCR 모델 로딩
 ├─ tracking.py        # Kalman + MultiObjectTracker
 ├─ calorie.py         # ArUco 스케일 + 칼로리 추정
 ├─ ocr_utils.py       # Food/Drink용 OCR 유틸 + 영양 분석
 ├─ detection.py       # 한 프레임 처리(detect_step)
-├─ main.py            # 음식/음료 카메라 실시간 처리
+├─ main.py            # 음식/음료 카메라 실시간 처리 (데스크톱)
 ├─ DrugDetection.py   # 약/처방전 이미지 OCR (단일 이미지)
+├─ test_webapp.py     # 웹앱 의존성 테스트
 ├─ best.pt            # 학습된 YOLO 모델 가중치
 └─ requirements.txt   # 의존성 패키지 목록
 ```
@@ -59,20 +74,65 @@ pip install -r requirements.txt
 - `best.pt`: 사용자 정의 학습 모델 (바나나, 수박, 음료 감지)
 - YOLOv8n 모델은 자동 다운로드됩니다
 
-### 4. 환경 설정
-`config.py` 파일에서 다음 항목을 수정하세요:
-```python
-# 모델 경로 설정
-FRUIT_MODEL_PATH = "path/to/your/best.pt"
-
-# PaddleOCR 캐시 경로 설정 (Windows)
-PADDLE_HOME = r"C:\paddle_ocr_home"
+### 4. 설치 확인 (선택 사항)
+```bash
+python test_webapp.py
 ```
+
+모든 의존성이 제대로 설치되었는지 확인할 수 있습니다.
 
 ## 사용 방법
 
-### 실시간 음식/음료 감지
-웹캠을 사용한 실시간 감지 및 분석:
+### 🌐 웹앱 사용 (권장)
+
+가장 쉽고 직관적인 방법입니다!
+
+#### 1단계: 웹 서버 시작
+```bash
+python app.py
+```
+
+서버가 시작되면 다음과 같은 메시지가 표시됩니다:
+```
+[INFO] Flask 서버 시작...
+[INFO] 브라우저에서 http://localhost:5000 접속하세요
+ * Running on http://0.0.0.0:5000
+```
+
+#### 2단계: 브라우저 접속
+웹 브라우저를 열고 다음 주소로 이동:
+```
+http://localhost:5000
+```
+
+#### 3단계: 음식 감지
+1. 페이지가 로드되면 카메라가 자동으로 시작됩니다
+2. 음식(바나나, 수박, 음료)을 카메라에 비춥니다
+3. **"📸 음식 감지하기"** 버튼을 클릭합니다
+4. AI가 음식을 분석하고 결과를 표시합니다:
+   - 음식 종류 및 신뢰도
+   - 예상 중량 (g)
+   - 칼로리 (kcal)
+   - 당뇨 위험도 메시지
+
+#### 웹앱 기능
+- ✅ 깔끔한 UI
+- ✅ 실시간 카메라 프리뷰
+- ✅ 원클릭 음식 감지
+- ✅ 자동 칼로리 계산
+- ✅ 당뇨 관리 정보 제공
+- ✅ 모바일/태블릿 지원
+
+#### 브라우저 요구사항
+- Chrome, Edge, Safari, Firefox 최신 버전
+- 카메라 접근 권한 허용 필요
+
+---
+
+### 💻 데스크톱 앱 사용 (고급)
+
+OpenCV 윈도우를 사용한 실시간 감지:
+
 ```bash
 python main.py
 ```

@@ -10,7 +10,7 @@ print("[INFO] YOLO fruit model:", FRUIT_MODEL_PATH)
 print("[INFO] YOLO COCO model:", COCO_MODEL_PATH)
 
 fruit_model = YOLO(FRUIT_MODEL_PATH)
-COCO_MODEL  = YOLO(COCO_MODEL_PATH)
+coco_model  = YOLO(COCO_MODEL_PATH)
 
 print("[INFO] Init PaddleOCR (korean)")
 ocr = PaddleOCR(

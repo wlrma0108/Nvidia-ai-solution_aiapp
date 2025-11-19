@@ -4,19 +4,17 @@ import cv2
 # ==========================
 # 0) Paddle / PaddleX 캐시 경로
 # ==========================
-PADDLE_HOME = r"C:\paddle_ocr_home"
+PADDLE_HOME = os.path.join(os.path.expanduser("~"), "paddle_ocr_home")
 os.environ["PADDLE_HOME"] = PADDLE_HOME
-os.environ["HOME"] = PADDLE_HOME
-os.environ["USERPROFILE"] = PADDLE_HOME
-os.environ["HOMEDRIVE"] = "C:"
-os.environ["HOMEPATH"] = r"\paddle_ocr_home"
 os.environ.setdefault("PADDLE_PDX_MODEL_SOURCE", "HF")
 os.makedirs(PADDLE_HOME, exist_ok=True)
 
 # ==========================
 # 1) 모델 경로 및 공통 설정
 # ==========================
-FRUIT_MODEL_PATH  = r"C://Users//성주//OneDrive//바탕 화면//Nvidia ai 솔루션//best.pt" # 환경에 따라 변경 필요
+# 현재 스크립트 디렉토리 기준 경로
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+FRUIT_MODEL_PATH  = os.path.join(SCRIPT_DIR, "best.pt")
 COCO_MODEL_PATH   = "yolov8n.pt"
 
 # 글로벌 클래스 id
